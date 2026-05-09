@@ -1,0 +1,889 @@
+{
+  "name": "Scraping - Cursos",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Inicio de proceso\nLectura de URLs desde Google Sheets, filtrado de entradas válidas y obtención del contenido HTML de cada sitio web.\n",
+        "height": 416,
+        "width": 800
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -272
+      ],
+      "typeVersion": 1,
+      "id": "0cd09745-922d-4523-8fd6-4f71e90e6558",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Procesamiento con IA\nLectura de URLs desde Google Sheets, filtrado de entradas válidas y obtención del contenido de cada sitio web mediante scraping.",
+        "height": 416,
+        "width": 960,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        736,
+        -272
+      ],
+      "typeVersion": 1,
+      "id": "b365e788-6239-4c5c-8013-3976df63be71",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Registro y documentación de ofertas\nPor cada oferta extraída, se registra la información general en Google Sheets, se obtiene el detalle completo de la oferta, se crea un documento en Google Docs con el contenido estructurado y se actualiza la hoja con el enlace al documento generado.",
+        "height": 576,
+        "width": 1456
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1712,
+        -272
+      ],
+      "typeVersion": 1,
+      "id": "54be2686-f0d1-4bc2-a94a-299888b2fe01",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -32,
+        -112
+      ],
+      "id": "2858cb83-e67f-4856-9de3-0e2281662d62",
+      "name": "obtener_sitios_a_investigar"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "12uirujq5znbTiLR2rplJky5ID2hVThn1xvpAkxRp3ec",
+          "mode": "list",
+          "cachedResultName": "Empleo Scraping",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12uirujq5znbTiLR2rplJky5ID2hVThn1xvpAkxRp3ec/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sitios Webs a buscar",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12uirujq5znbTiLR2rplJky5ID2hVThn1xvpAkxRp3ec/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        176,
+        -112
+      ],
+      "id": "cf168140-5584-4f7d-add4-63eb4e01f3c9",
+      "name": "leer_urls_google_sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "dsbsO1iOoE3JhRW1",
+          "name": "Google Sheets - pacholowithpaco@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e8649423-7218-47ed-a6bf-ed3e7321fda7",
+              "leftValue": "={{ $json['Sitio Web'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "18a01f07-0c01-4b52-b668-79f5131cbcc3",
+              "leftValue": "={{ $json['Sitio Web'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        384,
+        -112
+      ],
+      "id": "5e4aadd1-f2a6-4c9b-bf8d-b3124d685359",
+      "name": "filtrar_urls_validas"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=# Información\nEres un asistente para extraer datos de ofertas de trabajo de un sitio web, se te dará la información en formato Markdown, y necesito que retornes la información en el formato deseado.\nNo retornes nada más de lo que te necesito.\nSi el URL de la oferta no está completo, completarlo usando el URL base que también te proveerán del sitio del cual se extrae la información.\n\n## Objetivo\nInformación que necesitas extraer y encontrar de cada oferta de trabajo:\n- Título del puesto (jobTitle)\n- Nombre de la empresa (company)\n- Ubicación (location)\n- Modalidad de trabajo (workMode): \"Presencial\", \"Remoto\" o \"Híbrido\". Si no se especifica, null\n- Salario (salary): si aparece, si no null\n- Tecnologías o habilidades requeridas (technologies): array de strings\n- Descripción breve del puesto (description)\n- URL de la oferta (jobUrl)\n\n## Ejemplo de salida\nNecesito un JSON con la siguiente estructura, sin texto adicional, sin bloques de código markdown:\n[\n  {\n    \"jobTitle\": \"XXX\",\n    \"company\": \"XXX\",\n    \"location\": \"XXX\",\n    \"workMode\": \"Remoto\",\n    \"salary\": \"XXX\",\n    \"technologies\": [\"XXX\", \"XXX\"],\n    \"description\": \"XXX\",\n    \"jobUrl\": \"https://xxx\"\n  }\n]"
+            },
+            {
+              "content": "=# URL del sitio\n{{ $('iterar_sitios_web').item.json['Sitio Web'] }}\n# Data a extraer\n{{ $json.data.markdown }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1008,
+        -112
+      ],
+      "id": "70fc545a-cb03-4da8-9020-dba0c472b8e1",
+      "name": "extraer_ofertas_con_ia",
+      "credentials": {
+        "openAiApi": {
+          "id": "SmoTe7MQEiK8L9VT",
+          "name": "Rafa detalles n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "jobs",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        -112
+      ],
+      "id": "f8f2e745-1896-4acb-8c44-70f8276dca05",
+      "name": "extraer_arreglo_ofertas",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "scrape",
+        "url": "={{ $json['Sitio Web'] }}",
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        832,
+        -112
+      ],
+      "id": "9d2cb332-31cc-41c8-9ea4-8d523399ebc1",
+      "name": "obtener_contenido_sitio_web",
+      "credentials": {
+        "firecrawlApi": {
+          "id": "v3r1yFUFJsLMB6nW",
+          "name": "Firecrawl account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        576,
+        -32
+      ],
+      "id": "7e845140-d5c7-4e4e-affc-38f3f54a7460",
+      "name": "iterar_sitios_web"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1792,
+        -48
+      ],
+      "id": "72f8c6cf-6321-41a8-83b0-0a6e43412e83",
+      "name": "iterar_ofertas"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "12uirujq5znbTiLR2rplJky5ID2hVThn1xvpAkxRp3ec",
+          "mode": "list",
+          "cachedResultName": "Empleo Scraping",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12uirujq5znbTiLR2rplJky5ID2hVThn1xvpAkxRp3ec/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1860766323,
+          "mode": "list",
+          "cachedResultName": "Resultados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12uirujq5znbTiLR2rplJky5ID2hVThn1xvpAkxRp3ec/edit#gid=1860766323"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Descripción": "={{ $json.description }}",
+            "Título del puesto": "={{ $json.jobTitle }}",
+            "Empresa": "={{ $json.company }}",
+            "Ubicación": "={{ $json.location }}",
+            "Modalidad": "={{ $json.workMode }}",
+            "Salario": "={{ $json.salary }}",
+            "Tecnologías": "={{ $json.technologies.join(', ') }}",
+            "Enlace oferta": "={{ $json.jobUrl }}"
+          },
+          "matchingColumns": [
+            "Título del puesto"
+          ],
+          "schema": [
+            {
+              "id": "Título del puesto",
+              "displayName": "Título del puesto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Empresa",
+              "displayName": "Empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Ubicación",
+              "displayName": "Ubicación",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Modalidad",
+              "displayName": "Modalidad",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Salario",
+              "displayName": "Salario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tecnologías",
+              "displayName": "Tecnologías",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Descripción",
+              "displayName": "Descripción",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Enlace oferta",
+              "displayName": "Enlace oferta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Google Docs - Detalle",
+              "displayName": "Google Docs - Detalle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2032,
+        -32
+      ],
+      "id": "41c7bd90-6930-401c-a301-883b656b3ae3",
+      "name": "registrar_oferta_google_sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "dsbsO1iOoE3JhRW1",
+          "name": "Google Sheets - pacholowithpaco@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "scrape",
+        "url": "={{ $json['Enlace oferta'] }}",
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        2224,
+        -144
+      ],
+      "id": "aa370538-fb3b-40c4-901b-7e390a2c5222",
+      "name": "obtener_detalle_oferta",
+      "credentials": {
+        "firecrawlApi": {
+          "id": "v3r1yFUFJsLMB6nW",
+          "name": "Firecrawl account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "1k1XJI3kE90Ps50BDJRbhDV9CHY7LQdIT",
+        "title": "={{ $json.data.metadata.title }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        -144
+      ],
+      "id": "94efee23-f01a-47ca-9aa8-d22d30bfc873",
+      "name": "crear_documento_oferta",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "vPzrCcjJd7gUeuA6",
+          "name": "n8n Gmail OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "12uirujq5znbTiLR2rplJky5ID2hVThn1xvpAkxRp3ec",
+          "mode": "list",
+          "cachedResultName": "Course Scraping",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12uirujq5znbTiLR2rplJky5ID2hVThn1xvpAkxRp3ec/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1860766323,
+          "mode": "list",
+          "cachedResultName": "Resultados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12uirujq5znbTiLR2rplJky5ID2hVThn1xvpAkxRp3ec/edit#gid=1860766323"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Google Docs - Detalle": "=https://docs.google.com/document/d/{{ $json.id }}",
+            "Título del puesto": "={{ $('registrar_oferta_google_sheet').item.json['Título del puesto'] }}"
+          },
+          "matchingColumns": [
+            "Título del puesto"
+          ],
+          "schema": [
+            {
+              "id": "Título del puesto",
+              "displayName": "Título del puesto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Empresa",
+              "displayName": "Empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Ubicación",
+              "displayName": "Ubicación",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Modalidad",
+              "displayName": "Modalidad",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Salario",
+              "displayName": "Salario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tecnologías",
+              "displayName": "Tecnologías",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Descripción",
+              "displayName": "Descripción",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Enlace oferta",
+              "displayName": "Enlace oferta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Google Docs - Detalle",
+              "displayName": "Google Docs - Detalle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2656,
+        -144
+      ],
+      "id": "1b1c86db-6610-427e-b1b0-fa106a062bbf",
+      "name": "actualizar_enlace_documento_sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "dsbsO1iOoE3JhRW1",
+          "name": "Google Sheets - pacholowithpaco@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=# Información\nEres un asistente para extraer y estructurar la información de una oferta de trabajo que recibirás en formato Markdown. Debes extraer toda la información relevante para crear un documento en Google Docs.\nNo retornes nada más de lo que te necesito.\n\n## Ejemplo de salida:\nLa información de salida, en un formato que Google Docs pueda interpretar, con saltos de línea y secciones bien definidas.\n{\n  \"information\": \"Título del puesto: XXX\\n\\nEmpresa: XXX\\n\\nUbicación: XXX\\n\\nModalidad: XXX\\n\\nSalario: XXX\\n\\nDescripción:\\nXXX\\n\\nRequisitos:\\nXXX\\n\\nSe ofrece:\\nXXX\"\n}"
+            },
+            {
+              "content": "={{ $('obtener_detalle_oferta').item.json.data.markdown }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "textFormat": {
+            "textOptions": {
+              "type": "json_object"
+            }
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        2848,
+        -144
+      ],
+      "id": "7562b2a7-b81a-4d66-af7c-3eb32dc577db",
+      "name": "extraer_detalle_con_ia",
+      "credentials": {
+        "openAiApi": {
+          "id": "SmoTe7MQEiK8L9VT",
+          "name": "Rafa detalles n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $('crear_documento_oferta').item.json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $json.output[0].content[0].text.information }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        2752,
+        80
+      ],
+      "id": "7f9dc2ff-80ca-4663-b6d9-69fffd378ece",
+      "name": "actualizar_contenido_documento",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "vPzrCcjJd7gUeuA6",
+          "name": "n8n Gmail OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "fin_proceso",
+      "typeVersion": 1,
+      "position": [
+        2944,
+        80
+      ],
+      "id": "f9f938fa-b1c0-46af-ba06-d9de64f99761"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"jobs\": {{ $json.output[0].content[0].text.jobs }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        -112
+      ],
+      "id": "eb0ba1fa-b9b6-4fe3-af49-abdd6f7ad7c9",
+      "name": "normalizar_respuesta_ia"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "obtener_sitios_a_investigar": {
+      "main": [
+        [
+          {
+            "node": "leer_urls_google_sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "leer_urls_google_sheet": {
+      "main": [
+        [
+          {
+            "node": "filtrar_urls_validas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filtrar_urls_validas": {
+      "main": [
+        [
+          {
+            "node": "iterar_sitios_web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extraer_ofertas_con_ia": {
+      "main": [
+        [
+          {
+            "node": "normalizar_respuesta_ia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extraer_arreglo_ofertas": {
+      "main": [
+        [
+          {
+            "node": "iterar_ofertas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "obtener_contenido_sitio_web": {
+      "main": [
+        [
+          {
+            "node": "extraer_ofertas_con_ia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "iterar_sitios_web": {
+      "main": [
+        [],
+        [
+          {
+            "node": "obtener_contenido_sitio_web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "iterar_ofertas": {
+      "main": [
+        [
+          {
+            "node": "iterar_sitios_web",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "registrar_oferta_google_sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "registrar_oferta_google_sheet": {
+      "main": [
+        [
+          {
+            "node": "obtener_detalle_oferta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "obtener_detalle_oferta": {
+      "main": [
+        [
+          {
+            "node": "crear_documento_oferta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "crear_documento_oferta": {
+      "main": [
+        [
+          {
+            "node": "actualizar_enlace_documento_sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "actualizar_enlace_documento_sheet": {
+      "main": [
+        [
+          {
+            "node": "extraer_detalle_con_ia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extraer_detalle_con_ia": {
+      "main": [
+        [
+          {
+            "node": "actualizar_contenido_documento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "actualizar_contenido_documento": {
+      "main": [
+        [
+          {
+            "node": "fin_proceso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fin_proceso": {
+      "main": [
+        [
+          {
+            "node": "iterar_ofertas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalizar_respuesta_ia": {
+      "main": [
+        [
+          {
+            "node": "extraer_arreglo_ofertas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "1cc3c5c3-1912-470b-bf2d-859545d8d617",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1628b84132eabb91bea9c17506a461ebbf9f02771f744bc26d175259a8532865"
+  },
+  "id": "NQ1eLythcHUecDITO-DDP",
+  "tags": [
+    {
+      "updatedAt": "2026-03-09T16:29:31.777Z",
+      "createdAt": "2026-03-09T16:29:31.777Z",
+      "id": "Tr6oPikazgD8Kl2o",
+      "name": "scraping"
+    }
+  ]
+}

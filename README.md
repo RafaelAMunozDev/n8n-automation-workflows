@@ -4,7 +4,7 @@
 
 This repository contains a collection of automation workflows built with **n8n**, focused on solving real-world business problems through process automation.
 
-Each workflow is designed as an independent solution, covering different use cases such as request management, validations, integrations and automated decision-making.
+Each workflow is designed as an independent solution, covering different use cases such as request management, web scraping, AI-powered data extraction and automated decision-making.
 
 ---
 
@@ -24,14 +24,23 @@ Automates the management of employee leave requests, including validation, HR ap
 - Database updates  
 - Email notifications  
 
-**Path:**  
-`vacation-request-system/`
+**Path:** `vacation-request-system/`
 
 ---
 
-### 2. Workflow 2
+### 2. Job Scraping System
 
-Description pending.
+Automates the daily scraping of tech job portals, extracts structured offer data using AI and stores the results in Google Sheets with a detailed Google Docs file per offer.
+
+#### Main features:
+
+- Scheduled daily execution  
+- Multi-portal scraping via Firecrawl  
+- AI-powered data extraction with OpenAI  
+- Google Sheets integration  
+- Automatic Google Docs generation per offer  
+
+**Path:** `job-scraping-system/`
 
 ---
 
@@ -44,6 +53,9 @@ Description pending.
 ## Technologies Used
 
 - n8n  
+- OpenAI API  
+- Firecrawl  
+- Google Sheets & Google Docs  
 - SQL Database (PostgreSQL / MySQL)  
 - Google Calendar API  
 - Discord  
@@ -53,12 +65,10 @@ Description pending.
 
 ## Project Structure
 
-```
-n8n-automation-workflows/
-├── vacation-request-system/
-├── workflow-2/
-├── workflow-3/
-```
+    n8n-automation-workflows/
+    ├── vacation-request-system/
+    ├── job-scraping-system/
+    └── workflow-3/
 
 Each folder contains:
 
@@ -75,6 +85,9 @@ To run any workflow, you must configure your own credentials:
 - Google Calendar  
 - Discord  
 - Email service  
+- OpenAI API key  
+- Firecrawl API key  
+- Google Sheets & Google Docs (OAuth2)  
 
 Credentials are not included in the repository for security reasons.
 
@@ -99,4 +112,4 @@ This repository was created as part of hands-on practice with n8n, focusing on b
 
 - Workflows are modular and can be adapted to different environments  
 - Internal node naming may be in Spanish, while documentation is in English  
-- The goal is to demonstrate automation design, not only technical implementation  
+- The goal is to demonstrate automation design, not only technical implementation
