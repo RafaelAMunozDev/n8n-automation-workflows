@@ -1,0 +1,974 @@
+{
+  "name": "Sistema Rag Estándar",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Alimentar la base de datos\nCarga el documento descargado de Google Drive, lo divide en fragmentos de texto (chunks), genera los embeddings con OpenAI y los inserta en PostgreSQL con PGVector para su posterior consulta.\n",
+        "height": 672,
+        "width": 448,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        176,
+        48
+      ],
+      "typeVersion": 1,
+      "id": "79b6e011-8d85-4d32-be44-a3d548a9d8e4",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Consumo de la base de datos\nChatbot conversacional que recibe mensajes del usuario, mantiene memoria del contexto de la conversación y busca información relevante en el vector store de PostgreSQL mediante embeddings para generar respuestas precisas basadas en los documentos ingestados.\n",
+        "height": 672,
+        "width": 752,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        624,
+        48
+      ],
+      "typeVersion": 1,
+      "id": "27f23f32-36c5-4167-ad46-4a803bd3476e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Selección y validación de documentos\nBúsqueda de archivos en Google Drive de forma manual o programada, validación de si el archivo ya fue procesado anteriormente y gestión de cambios: si el documento es nuevo se procesa directamente, si fue modificado se eliminan los vectores anteriores antes de regenerarlos.\n\n",
+        "height": 672,
+        "width": 2464,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2288,
+        48
+      ],
+      "typeVersion": 1,
+      "id": "46520bd2-0f02-4501-956f-2b071e950785",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        720,
+        192
+      ],
+      "id": "c3b019c1-aada-4cf5-9dab-8fc79c8ea9b0",
+      "name": "recibir_mensaje_chat",
+      "webhookId": "b662f470-a76a-4201-a8b9-0bc0d7a13ee1"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "# Rol: Asistente Legal\n\n## Descripción\nEres un asistente legal diseñado para ayudar a un abogado a consultar información contenida en documentos legales internos.  \nDebes recuperar, analizar y entregar respuestas precisas, claras y fundamentadas basadas únicamente en los documentos disponibles.  \nMantén siempre un tono profesional y formal, y prioriza la exactitud legal en todas tus respuestas.  \n\nTus respuestas deben de ser cortas y puntuales.\n\nSi no conoces la respuesta, responde que no dispones de la información.\n\n\n\n## Capacidades\n- Búsqueda y recuperación de información legal relevante.  \n- Respuestas concisas y con fundamento en los documentos disponibles.  \n- Inclusión de referencia del documento utilizado para responder.  \n- Identificación de ausencia de información en los documentos.  \n- Mantener confidencialidad y precisión en todas las respuestas.  \n\n\n## Comportamiento\n1. Recepción de la consulta: Recibe la pregunta o solicitud del abogado.  \n2. Búsqueda de información en la base de conocimiento para encontrar información relevante en los documentos.  \n3. Generación de la respuesta:  \n   - Si encuentras la información:  \n     - Proporciona un resumen conciso, claro y preciso.  \n     - Incluye la referencia del documento donde encontraste la información (nombre o identificación del documento y sección/cláusula si aplica).  \n   - Si no encuentras la información:  \n     - Responde únicamente con:  \n       ```\n       No puedo encontrar la respuesta en los recursos disponibles.\n       ```\n4. Confidencialidad: No reveles información fuera de lo que esté contenido en los documentos.  \n5. Tono: Profesional, formal, claro y directo.  \n\n## Ejemplo\nPregunta del abogado:  \n> ¿Cuál es el procedimiento de terminación anticipada del contrato de arrendamiento?\n\nRespuesta del asistente (ejemplo):  \n> Según el Contrato de Arrendamiento - Cláusula 12, el contrato puede ser terminado anticipadamente por cualquiera de las partes notificando con al menos 30 días de antelación y cumpliendo con el pago proporcional de las obligaciones pendientes.  \n> Referencia: Contrato_Arrendamiento_2025.pdf, Cláusula 12.  "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        928,
+        192
+      ],
+      "id": "4365a8bc-3ea9-45fd-8d0a-14b1d2e06a07",
+      "name": "agente_ia"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        752,
+        368
+      ],
+      "id": "59d8cb83-2bee-4b76-97c7-b5b7600244dd",
+      "name": "modelo_chat_openai",
+      "credentials": {
+        "openAiApi": {
+          "id": "SmoTe7MQEiK8L9VT",
+          "name": "Rafa detalles n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        928,
+        368
+      ],
+      "id": "33cf1b50-483c-42ae-829f-20f60a88b004",
+      "name": "memoria_conversacion"
+    },
+    {
+      "parameters": {
+        "description": "Aquí puedes tomar los documentos cargados como base de información. Para responder preguntas relacionadas.",
+        "topK": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        1072,
+        352
+      ],
+      "id": "5985c4b1-9115-4969-9fda-01f01a0aea7d",
+      "name": "responder_desde_vector_store"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        512
+      ],
+      "id": "849df312-e44e-483d-993c-1ea36eafea20",
+      "name": "vector_store_postgres",
+      "credentials": {
+        "postgres": {
+          "id": "hu9Z0ONC9gC44r66",
+          "name": "Postgres Servidor Ubuntu"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1200,
+        512
+      ],
+      "id": "5a53d7c2-bafd-430e-ae5f-da943cd8ee20",
+      "name": "modelo_embeddings_consulta",
+      "credentials": {
+        "openAiApi": {
+          "id": "SmoTe7MQEiK8L9VT",
+          "name": "Rafa detalles n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-large",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        544
+      ],
+      "id": "920e0593-bfa1-4330-9ae7-3572ae204f81",
+      "name": "embeddings_openai",
+      "credentials": {
+        "openAiApi": {
+          "id": "SmoTe7MQEiK8L9VT",
+          "name": "Rafa detalles n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        288,
+        192
+      ],
+      "id": "e5997995-d98b-49e1-86a1-ab824de16625",
+      "name": "vector_store_insercion",
+      "credentials": {
+        "postgres": {
+          "id": "hu9Z0ONC9gC44r66",
+          "name": "Postgres Servidor Ubuntu"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        416
+      ],
+      "id": "d91523fe-e34e-444e-8a61-d8ac842b1cd2",
+      "name": "cargar_documento"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 250,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        368,
+        576
+      ],
+      "id": "a14daa6f-45c2-4ad3-81e5-1739b20927c2",
+      "name": "dividir_texto_en_chunks"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2128,
+        304
+      ],
+      "id": "b9eae52a-648a-4776-a128-ec2cf3885cd8",
+      "name": "ejecutar_manualmente"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2144,
+        496
+      ],
+      "id": "d25e4140-ae50-4df5-a3b5-f6e0708ae2b3",
+      "name": "ejecutar_programado"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "resource": "fileFolder",
+        "queryString": "=",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1gFIDU0oL6k1QRqroqD8oCyfdZZFUEiua",
+            "mode": "list",
+            "cachedResultName": "Documentos-Legales",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1gFIDU0oL6k1QRqroqD8oCyfdZZFUEiua"
+          },
+          "includeTrashed": false
+        },
+        "options": {
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1920,
+        352
+      ],
+      "id": "09807f24-502a-4683-892b-f57664ffc771",
+      "name": "buscar_archivos_drive",
+      "credentials": {
+        "googleApi": {
+          "id": "dsbsO1iOoE3JhRW1",
+          "name": "Google Sheets - pacholowithpaco@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8372e310-9260-4347-bdec-0631a9712d70",
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": "application/vnd.google-apps.folder",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1664,
+        352
+      ],
+      "id": "1e2c3195-bfa8-4a32-a424-a49dd6ac495b",
+      "name": "es_archivo_valido"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "resource": "fileFolder",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json.id }}",
+            "mode": "id"
+          }
+        },
+        "options": {
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1408,
+        464
+      ],
+      "id": "0e61ae55-3550-4c07-bd41-292441dff78d",
+      "name": "buscar_archivos_subcarpetas",
+      "credentials": {
+        "googleApi": {
+          "id": "dsbsO1iOoE3JhRW1",
+          "name": "Google Sheets - pacholowithpaco@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select count(*) as ingested from public.ingested_files\nwhere file_id = '{{ $json.id }}' and md5_checksum ='{{ $json.md5Checksum }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1456,
+        176
+      ],
+      "id": "58cb3746-a971-42a7-b0b3-f3366e261572",
+      "name": "obtener_registro_bd",
+      "credentials": {
+        "postgres": {
+          "id": "hu9Z0ONC9gC44r66",
+          "name": "Postgres Servidor Ubuntu"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4a88c416-145a-49cd-816a-26304e46b5b0",
+              "leftValue": "={{ $json.ingested }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1280,
+        272
+      ],
+      "id": "9e5186e4-c70d-43c6-87f0-4c97f9380373",
+      "name": "fue_procesado_anteriormente"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -976,
+        160
+      ],
+      "id": "fb419280-dc67-46da-ab1e-49371272c474",
+      "name": "sin_cambios_omitir"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a72b0443-61e8-4085-8339-7831e31dfb87",
+              "name": "id",
+              "value": "={{ $('es_archivo_valido').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "8812545d-6ed3-46b1-88ff-d075dd600dfc",
+              "name": "md5Checksum",
+              "value": "={{ $('es_archivo_valido').item.json.md5Checksum }}",
+              "type": "string"
+            },
+            {
+              "id": "f1c05291-345e-43cc-928e-a6327419f24a",
+              "name": "mimeType",
+              "value": "={{ $('es_archivo_valido').item.json.mimeType }}",
+              "type": "string"
+            },
+            {
+              "id": "ab67405d-79c9-4eb3-94c3-6e9a03af334f",
+              "name": "modifiedTime",
+              "value": "={{ $('es_archivo_valido').item.json.modifiedTime }}",
+              "type": "string"
+            },
+            {
+              "id": "1fd2d2a2-2988-408b-8fba-37a23388b49f",
+              "name": "name",
+              "value": "={{ $('es_archivo_valido').item.json.name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -976,
+        320
+      ],
+      "id": "e7fb3b63-4f41-4d20-b58b-b1ff9d6582d7",
+      "name": "extraer_variables_archivo"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "delete from n8n_vectors where file_id= '{{ $json.id }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -784,
+        496
+      ],
+      "id": "81990aec-5d31-483c-bcbc-fff3e3b5020f",
+      "name": "eliminar_vectores_anteriores",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "hu9Z0ONC9gC44r66",
+          "name": "Postgres Servidor Ubuntu"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -608,
+        336
+      ],
+      "id": "2a5a461b-a7f6-446f-967b-8e3c09df9c13",
+      "name": "esperar_eliminacion"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "ingested_files",
+          "mode": "list",
+          "cachedResultName": "ingested_files"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "file_id": "={{ $json.id }}",
+            "name": "={{ $json.name }}",
+            "mime_type": "={{ $json.mimeType }}",
+            "md5_checksum": "={{ $json.md5Checksum }}",
+            "modified_time": "={{ $json.modifiedTime }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "file_id",
+              "displayName": "file_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "mime_type",
+              "displayName": "mime_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "md5_checksum",
+              "displayName": "md5_checksum",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "modified_time",
+              "displayName": "modified_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_ingested",
+              "displayName": "last_ingested",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -368,
+        336
+      ],
+      "id": "6541d2e1-c464-4dd8-a5df-648f8c4364b5",
+      "name": "registrar_archivo_bd",
+      "credentials": {
+        "postgres": {
+          "id": "hu9Z0ONC9gC44r66",
+          "name": "Postgres Servidor Ubuntu"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.file_id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -176,
+        144
+      ],
+      "id": "859579a9-58a1-427a-8205-1c4459438a42",
+      "name": "descargar_archivo_drive",
+      "credentials": {
+        "googleApi": {
+          "id": "dsbsO1iOoE3JhRW1",
+          "name": "Google Sheets - pacholowithpaco@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE n8n_vectors\nSET file_id = '{{ $('Extraer variables').item.json.id }}'\nWHERE metadata->'loc'->'lines' = '{{ $json.metadata.loc.lines.toJsonString() }}' and file_id is null",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -128,
+        416
+      ],
+      "id": "4a4fa214-b8dd-4826-9e26-a09ef71a2e5f",
+      "name": "actualizar_file_id_vectores",
+      "credentials": {
+        "postgres": {
+          "id": "hu9Z0ONC9gC44r66",
+          "name": "Postgres Servidor Ubuntu"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        0,
+        544
+      ],
+      "id": "67e47c8c-2f63-4d2e-890c-4bd42cf3a6fa",
+      "name": "fin_proceso"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "recibir_mensaje_chat": {
+      "main": [
+        [
+          {
+            "node": "agente_ia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "modelo_chat_openai": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "agente_ia",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "memoria_conversacion": {
+      "ai_memory": [
+        [
+          {
+            "node": "agente_ia",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "responder_desde_vector_store": {
+      "ai_tool": [
+        [
+          {
+            "node": "agente_ia",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "vector_store_postgres": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "responder_desde_vector_store",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "modelo_embeddings_consulta": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "responder_desde_vector_store",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "embeddings_openai": {
+      "ai_embedding": [
+        [
+          {
+            "node": "vector_store_insercion",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "vector_store_postgres",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "vector_store_insercion": {
+      "main": [
+        [
+          {
+            "node": "actualizar_file_id_vectores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cargar_documento": {
+      "ai_document": [
+        [
+          {
+            "node": "vector_store_insercion",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "dividir_texto_en_chunks": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "cargar_documento",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ejecutar_manualmente": {
+      "main": [
+        [
+          {
+            "node": "buscar_archivos_drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ejecutar_programado": {
+      "main": [
+        [
+          {
+            "node": "buscar_archivos_drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "buscar_archivos_drive": {
+      "main": [
+        [
+          {
+            "node": "es_archivo_valido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "es_archivo_valido": {
+      "main": [
+        [
+          {
+            "node": "obtener_registro_bd",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "buscar_archivos_subcarpetas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "buscar_archivos_subcarpetas": {
+      "main": [
+        [
+          {
+            "node": "es_archivo_valido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "obtener_registro_bd": {
+      "main": [
+        [
+          {
+            "node": "fue_procesado_anteriormente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fue_procesado_anteriormente": {
+      "main": [
+        [
+          {
+            "node": "sin_cambios_omitir",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "extraer_variables_archivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extraer_variables_archivo": {
+      "main": [
+        [
+          {
+            "node": "eliminar_vectores_anteriores",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "esperar_eliminacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "eliminar_vectores_anteriores": {
+      "main": [
+        [
+          {
+            "node": "esperar_eliminacion",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "esperar_eliminacion": {
+      "main": [
+        [
+          {
+            "node": "registrar_archivo_bd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "registrar_archivo_bd": {
+      "main": [
+        [
+          {
+            "node": "descargar_archivo_drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "descargar_archivo_drive": {
+      "main": [
+        [
+          {
+            "node": "vector_store_insercion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "actualizar_file_id_vectores": {
+      "main": [
+        [
+          {
+            "node": "fin_proceso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "72ef133c-f4ef-46fe-995c-0c9fa9e26425",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1628b84132eabb91bea9c17506a461ebbf9f02771f744bc26d175259a8532865"
+  },
+  "id": "zQ0i4BZvEA1axa9D_j005",
+  "tags": []
+}

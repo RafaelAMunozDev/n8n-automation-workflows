@@ -44,9 +44,20 @@ Automates the daily scraping of tech job portals, extracts structured offer data
 
 ---
 
-### 3. Workflow 3
+### 3. Standard RAG System
 
-Description pending.
+A production-ready Retrieval-Augmented Generation pipeline that ingests documents from Google Drive, vectorizes their content using OpenAI embeddings and stores them in PostgreSQL with PGVector. Includes a conversational AI agent that answers questions based exclusively on the ingested documents.
+
+#### Main features:
+
+- Manual and scheduled document ingestion  
+- Change detection to avoid reprocessing unchanged files  
+- Document chunking and embedding generation  
+- Vector storage with PostgreSQL and PGVector  
+- Conversational AI agent with session memory  
+- Configurable for any domain via system prompt  
+
+**Path:** `rag-document-system/`
 
 ---
 
@@ -56,7 +67,8 @@ Description pending.
 - OpenAI API  
 - Firecrawl  
 - Google Sheets & Google Docs  
-- SQL Database (PostgreSQL / MySQL)  
+- Google Drive  
+- PostgreSQL + PGVector  
 - Google Calendar API  
 - Discord  
 - Email services  
@@ -68,7 +80,7 @@ Description pending.
     n8n-automation-workflows/
     ├── vacation-request-system/
     ├── job-scraping-system/
-    └── workflow-3/
+    └── rag-document-system/
 
 Each folder contains:
 
@@ -81,8 +93,9 @@ Each folder contains:
 
 To run any workflow, you must configure your own credentials:
 
-- Database connection  
+- Database connection (PostgreSQL)  
 - Google Calendar  
+- Google Drive (OAuth2)  
 - Discord  
 - Email service  
 - OpenAI API key  
