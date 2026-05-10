@@ -26,6 +26,8 @@ Automates the management of employee leave requests, including validation, HR ap
 
 **Path:** `vacation-request-system/`
 
+![Workflow](./vacation-request-system/images/workflow.png)
+
 ---
 
 ### 2. Job Scraping System
@@ -41,6 +43,8 @@ Automates the daily scraping of tech job portals, extracts structured offer data
 - Automatic Google Docs generation per offer  
 
 **Path:** `job-scraping-system/`
+
+![Workflow](./job-scraping-system/images/workflow.png)
 
 ---
 
@@ -58,6 +62,8 @@ A production-ready Retrieval-Augmented Generation pipeline that ingests document
 - Configurable for any domain via system prompt  
 
 **Path:** `rag-document-system/`
+
+![Workflow](./rag-document-system/images/workflow.png)
 
 ---
 
@@ -86,6 +92,7 @@ Each folder contains:
 
 - `workflow.json` → the n8n workflow  
 - `README.md` → explanation of the solution  
+- `images/` → workflow screenshots  
 
 ---
 
