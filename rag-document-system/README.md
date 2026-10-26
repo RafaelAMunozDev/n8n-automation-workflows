@@ -1,5 +1,7 @@
 # Standard RAG System (n8n)
 
+**English** · [Español](README.es.md)
+
 ## Overview
 
 This project is an end-to-end **Retrieval-Augmented Generation (RAG)** system built with **n8n**. It automates the ingestion of documents stored in Google Drive, vectorizes their content using OpenAI embeddings and stores them in a PostgreSQL database with the PGVector extension. A conversational AI agent then allows querying those documents through a chat interface.
@@ -198,7 +200,7 @@ Credentials are not included in the exported workflow JSON for security reasons.
 - The system avoids duplicate processing using MD5 checksum comparison  
 - The AI agent only answers based on ingested documents — it does not hallucinate outside content  
 - The legal assistant configuration can be replaced with any other domain prompt  
-- Internal node naming is in Spanish, while documentation is in English  
+- Internal node naming is in Spanish, while the documentation is available in English and Spanish  
 
 ---
 

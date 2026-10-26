@@ -1,5 +1,7 @@
 # Job Scraping System (n8n)
 
+**English** · [Español](README.es.md)
+
 ## Overview
 
 This project is an end-to-end automation workflow built with **n8n** that scrapes job offers from tech employment portals, extracts structured information using AI, and stores the results in Google Sheets along with a detailed Google Docs file per offer.
@@ -117,7 +119,7 @@ Credentials are not included in the exported workflow JSON for security reasons.
 
 - The workflow uses Firecrawl instead of a standard HTTP request to avoid bot detection on job portals  
 - The AI extraction may vary depending on the structure of each portal  
-- The internal node naming is in Spanish, while documentation is in English  
+- The internal node naming is in Spanish, while the documentation is available in English and Spanish  
 
 ---
 

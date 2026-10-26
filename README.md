@@ -93,7 +93,7 @@ A production-ready Retrieval-Augmented Generation pipeline that ingests document
 Each folder contains:
 
 - `workflow.json` → the n8n workflow  
-- `README.md` → explanation of the solution  
+- `README.md` / `README.es.md` → explanation of the solution (English / Spanish)  
 - `images/` → workflow screenshots  
 
 ---
@@ -133,5 +133,5 @@ This repository was created as part of hands-on practice with n8n, focusing on b
 ## Notes
 
 - Workflows are modular and can be adapted to different environments  
-- Internal node naming may be in Spanish, while documentation is in English  
+- Internal node naming may be in Spanish, while the documentation is available in English and Spanish  
 - The goal is to demonstrate automation design, not only technical implementation

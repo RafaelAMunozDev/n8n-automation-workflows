@@ -1,5 +1,7 @@
 # Vacation & Sick Leave Request Management System (n8n)
 
+**English** · [Español](README.es.md)
+
 ## Overview
 
 This project is an end-to-end automation workflow built with **n8n** that manages employee leave requests, including both **vacation days** and **sick leave**.
@@ -180,7 +182,7 @@ Credentials are not included in the exported workflow JSON for security reasons.
   - Separation of concerns  
   - Clear validation layer  
   - Structured processing  
-- The internal node naming is in Spanish, while documentation is in English  
+- The internal node naming is in Spanish, while the documentation is available in English and Spanish  
 
 ---
 

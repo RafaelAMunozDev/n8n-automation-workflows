@@ -93,7 +93,7 @@ Un pipeline de Retrieval-Augmented Generation listo para producción que importa
 Cada carpeta contiene:
 
 - `workflow.json` → el flujo de n8n  
-- `README.md` → explicación de la solución (en inglés)  
+- `README.md` / `README.es.md` → explicación de la solución (inglés / español)  
 - `images/` → capturas del flujo  
 
 ---
@@ -133,5 +133,5 @@ Este repositorio nace de la práctica con n8n y se centra en construir solucione
 ## Notas
 
 - Los flujos son modulares y se pueden adaptar a distintos entornos  
-- Los nombres internos de los nodos pueden estar en español, mientras que la documentación está en inglés  
+- Los nombres internos de los nodos pueden estar en español; la documentación está en inglés y en español  
 - El objetivo es mostrar el diseño de la automatización, no solo la implementación técnica
