@@ -1,5 +1,7 @@
 # n8n Automation Workflows
 
+**English** · [Español](README.es.md)
+
 ## Overview
 
 This repository contains a collection of automation workflows built with **n8n**, focused on solving real-world business problems through process automation.
